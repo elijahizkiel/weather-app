@@ -23,3 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 api_key.js
+requestList.js
+responseForCurrentWeatherRequest.js
+responseForForecastRequest.js
+package-lock.json
