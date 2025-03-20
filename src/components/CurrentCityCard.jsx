@@ -13,9 +13,9 @@ export default function CurrentCityCard({
     <div className="current-city-weather">
       <div className="city-name-box">
         <h2 className="city-name">{cityName}</h2>
-        <smaller className="rain-chance">
+        <span className="rain-chance">
           {currentWeather.rainingChance}
-        </smaller>
+        </span>
       </div>
       <div className="weather-icon">
         <img
