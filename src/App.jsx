@@ -12,8 +12,8 @@ function App() {
         }
       />
       <CurrentCityCard
-        cityName={cityWeather?.currentCity?.name || "Addis"}
-        currentTemp={cityWeather?.currentWeather?.temp -273|| 20 }
+        cityName={cityWeather?.currentCity?.name}
+        currentTemp={(cityWeather?.currentWeather?.temp.current - 273).toFixed(2) }
         units={"celsius"}
         currentWeather={
           cityWeather?.currentWeather?.weather

@@ -13,9 +13,6 @@ export default function CurrentCityCard({
     <div className="gap-4 p-5 grid grid-cols-2">
       <div className="">
         <h2 className="text-2xl font-bold text-white">{cityName}</h2>
-        <span className="text-sm text-gray-400">
-          Raining Chance: {currentWeather.precipitation*100}%
-        </span>
       </div>
       <div className="row-span-2 h-full">
         <img

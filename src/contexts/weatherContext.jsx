@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useReducer } from "react";
-import { apiKey1 } from "../../api_key"
+import { apiKey1 } from "../../api_key";
 
 const WeatherContext = createContext(null);
 
@@ -42,7 +42,7 @@ function WeatherProvider({ children }) {
 
   // Fetch city list when search input changes
   useEffect(() => {
-    const fetchCity = async () => {
+    const fetchCities = async () => {
       if (!city) return;
 
       try {
@@ -56,7 +56,7 @@ function WeatherProvider({ children }) {
       }
     };
 
-    const timer = setTimeout(fetchCity, 500); // Added debounce
+    const timer = setTimeout(fetchCities, 500); // Added debounce
     return () => clearTimeout(timer);
   }, [city]);
 
@@ -98,7 +98,47 @@ function WeatherProvider({ children }) {
     const selectedCity = cities[index];
     dispatchCityWeather({ type: "map-city", city: selectedCity });
   };
-
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      console.log("Geolocation navigator is found!");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { lon, lat, accuracy } = pos.coords;
+          const fetchCity = async () => {
+            const response = await fetch(
+              `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${apiKey1}`
+            );
+            const city = await response.json();
+            dispatchCityWeather({
+              type: "map-city",
+              city: city[0],
+            });
+          };
+          fetchCity();
+          console.log("Your current position is:");
+          console.log(`\t\tLatitude : ${lat}`);
+          console.log(`\t\tLongitude: ${lon}`);
+          console.log(`\t\tMore or less ${accuracy} meters.`);
+        },
+        (err) => {
+          console.log(err);
+          const fetchCity = async () => {
+            const response = await fetch(
+              `https://api.openweathermap.org/geo/1.0/direct?q=addis%20ababa&appid=${apiKey1}`
+            );
+            const city = await response.json();
+            dispatchCityWeather({
+              type: "map-city",
+              city: city[0],
+            });
+          };
+          fetchCity();
+        }
+      );
+    } else {
+      console.log("NO navigator found");
+    }
+  }, []);
   return (
     <WeatherContext.Provider
       value={{
@@ -119,37 +159,38 @@ function mapCityWeather(state, action) {
     case "map-forecast":
       return {
         ...state,
-        weatherForecasted: action.forecast?.list?.map((item) => ({
-          date: {
-            str: item.dt_txt,
-            unix: item.dt,
-          },
-          temp: {
-            current: item.main?.temp,
-            min: item.main?.temp_min,
-            max: item.main?.temp_max,
-            feelslike: item.main?.feels_like,
-          },
-          pressure: item.main?.pressure,
-          humidity: item.main?.humidity,
-          visibility: item.visibility,
-          precipitation: item.pop,
-          cloud: {
-            coverage: item.clouds?.all,
-          },
-          wind: {
-            speed: item.wind?.speed,
-            direction: item.wind?.deg,
-            gust: item.wind?.gust,
-          },
-          weather: item.weather?.[0]
-            ? {
-                main: item.weather[0].main,
-                icon: item.weather[0].icon,
-                description: item.weather[0].description,
-              }
-            : null,
-        })) || [],
+        weatherForecasted:
+          action.forecast?.list?.map((item) => ({
+            date: {
+              str: item.dt_txt,
+              unix: item.dt,
+            },
+            temp: {
+              current: item.main?.temp,
+              min: item.main?.temp_min,
+              max: item.main?.temp_max,
+              feelslike: item.main?.feels_like,
+            },
+            pressure: item.main?.pressure,
+            humidity: item.main?.humidity,
+            visibility: item.visibility,
+            precipitation: item.pop,
+            cloud: {
+              coverage: item.clouds?.all,
+            },
+            wind: {
+              speed: item.wind?.speed,
+              direction: item.wind?.deg,
+              gust: item.wind?.gust,
+            },
+            weather: item.weather?.[0]
+              ? {
+                  main: item.weather[0].main,
+                  icon: item.weather[0].icon,
+                  description: item.weather[0].description,
+                }
+              : null,
+          })) || [],
       };
 
     case "map-current-weather":
@@ -202,38 +243,3 @@ function mapCityWeather(state, action) {
 }
 
 export { WeatherContext, WeatherProvider };
-
-/*
-function useForecast(cityLatitude, cityLongitude) {
-  const [forecast, setForecast] = useState();
-
-  console.log(
-    "city latitude:",
-    cityLatitude,
-    "\n city longitude: ",
-    cityLongitude
-  );
-
-  useEffect(() => {
-    if (!cityLatitude || !cityLongitude) {
-      return;
-    }
-    const fetchForecast = async () => {
-      try {
-        const response = await fetch(
-          `http://api.openweathermap.org/data/2.5/forecast?lat=${cityLatitude}&lon=${cityLongitude}&appid=${apiKey1}`
-        ).then(async (response) => await response.json());
-        setForecast(response);
-      } catch (error) {
-        console.error("Error fetching weather data:", error);
-      }
-    };
-    fetchForecast();
-
-    return () => {
-      setForecast(null);
-    };
-  }, [cityLatitude, cityLongitude]);
-  return forecast;
-}
-*/
