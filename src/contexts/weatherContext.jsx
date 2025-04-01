@@ -1,11 +1,11 @@
-import { createContext, useState, useEffect } from "react";
-import apiKey1 from "../../api_key";
+import { createContext, useState, useEffect, useReducer } from "react";
+import { apiKey1 } from "../../api_key"
+
 const WeatherContext = createContext(null);
 
 function WeatherProvider({ children }) {
   const [cities, setCities] = useState([]);
   const [city, setCity] = useState("");
-
   const [cityWeather, dispatchCityWeather] = useReducer(mapCityWeather, {
     currentCity: {
       name: "",
@@ -13,39 +13,8 @@ function WeatherProvider({ children }) {
       lat: "",
       state: "",
       country: "",
-      timezone: "",
-    }, //stores the name of city, its coordinates, state and country
-    weatherForecasted: [
-      {
-        date: {
-          str: "",
-          unix: 0,
-        },
-        temp: {
-          current: 0,
-          min: 0,
-          max: 0,
-        },
-        pressure: 0,
-        weather: {
-          main: "",
-          icon: "",
-        },
-        cloud: {
-          coverage: 0,
-        },
-        uv: 0,
-        airQuality: 0,
-        wind: {
-          speed: 0,
-          direction: "",
-          gust: 0,
-        },
-        preciptation: 0,
-        visibility: 0,
-        humidity: 0,
-      },
-    ], //stores weather of consecutive five days of the city as object containing detail info of weather and date
+    },
+    weatherForecasted: [],
     currentWeather: {
       temp: {
         current: 0,
@@ -65,142 +34,206 @@ function WeatherProvider({ children }) {
         direction: "",
         gust: 0,
       },
-      uv: 0,
-      preciptation: 0,
+      precipitation: 0,
       visibility: 0,
       humidity: 0,
     },
   });
 
-  /** 
-   * useEffect to fetch name of cities when the user writes name on the desired city on 
-   * the search bar. It returns up to 10 cities with the similar beginning to the written character  
-   */
+  // Fetch city list when search input changes
   useEffect(() => {
-    const fetchCity = async (city) => {
-      const result = await fetch(
-        `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=10&appid=${apiKey1}`
-      ).then((response) => response.json());
-      return result;
+    const fetchCity = async () => {
+      if (!city) return;
+
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=10&appid=${apiKey1}`
+        );
+        const result = await response.json();
+        setCities(Array.isArray(result) ? result : []);
+      } catch (error) {
+        console.error("Error fetching city data:", error);
+      }
     };
-    setCities(fetchCity(city));
-    return () => {
-      setCities([]);
-    };
+
+    const timer = setTimeout(fetchCity, 500); // Added debounce
+    return () => clearTimeout(timer);
   }, [city]);
 
-  /** 
-   * useEffect to fetch and map to state object forecast of weather of current city
-   * it runs whenever the current city state changes
-   */
+  // Fetch weather data when city coordinates change
   useEffect(() => {
-    const fetchWeather = async (lat, lon) => {
-      const result = await fetch(
-        `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey1}`
-      ).then((response) => response.json());
-      return result;
+    const fetchWeatherData = async () => {
+      const { lat, lon } = cityWeather.currentCity;
+      if (!lat || !lon) return;
+
+      try {
+        // Fetch current weather
+        const currentResponse = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey1}`
+        );
+        const currentData = await currentResponse.json();
+        dispatchCityWeather({
+          type: "map-current-weather",
+          currentWeather: currentData,
+        });
+
+        // Fetch forecast
+        const forecastResponse = await fetch(
+          `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey1}`
+        );
+        const forecastData = await forecastResponse.json();
+        dispatchCityWeather({
+          type: "map-forecast",
+          forecast: forecastData,
+        });
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+      }
     };
 
-    dispatchCityWeather({
-      type: "map-forecast",
-      forecast: fetchWeather(currentCity.lat, currentCity.lon),
-    });
-
-    return () => {
-      dispatchCityWeather(null);
-    };
+    fetchWeatherData();
   }, [cityWeather.currentCity]);
+
+  const setCurrentCity = (index) => {
+    const selectedCity = cities[index];
+    dispatchCityWeather({ type: "map-city", city: selectedCity });
+  };
 
   return (
     <WeatherContext.Provider
-      value={{ cities, setCity, city, cityWeather, dispatchCityWeather }}
+      value={{
+        cities,
+        setCity,
+        setCurrentCity,
+        city,
+        cityWeather,
+      }}
     >
       {children}
     </WeatherContext.Provider>
   );
 }
 
-export { WeatherContext, WeatherProvider };
-
 function mapCityWeather(state, action) {
   switch (action.type) {
-    case "map-forecast": {
+    case "map-forecast":
       return {
         ...state,
-        weatherForecasted: action.forecast.list.map((forecast) => {
-          return {
-            date: {
-              str: forecast.dt_txt,
-              unix: forecast.dt,
-            },
-            temp: {
-              current: forecast.main.temp,
-              min: forecast.main.temp_min,
-              max: forecast.main.temp_max,
-              feelslike: forecast.main.feels_like,
-            },
-            pressure: forecast.main.pressure,
-            humidity: forecast.main.humidity,
-            visibility: forecast.visibility,
-            precipitation: forecast.pop,
-            cloud: {
-              coverage: forecast.clouds.all,
-            },
-            wind: {
-              speed: forecast.wind.speed,
-              direction: forecast.wind.deg,
-              gust: forecast.wind.gust,
-            },
-            weather: {
-              main: forecast.weather[0].main,
-              icon: forecast.weather[0].icon,
-              description: forecast.weather[0].description,
-            },
-          };
-        }),
+        weatherForecasted: action.forecast?.list?.map((item) => ({
+          date: {
+            str: item.dt_txt,
+            unix: item.dt,
+          },
+          temp: {
+            current: item.main?.temp,
+            min: item.main?.temp_min,
+            max: item.main?.temp_max,
+            feelslike: item.main?.feels_like,
+          },
+          pressure: item.main?.pressure,
+          humidity: item.main?.humidity,
+          visibility: item.visibility,
+          precipitation: item.pop,
+          cloud: {
+            coverage: item.clouds?.all,
+          },
+          wind: {
+            speed: item.wind?.speed,
+            direction: item.wind?.deg,
+            gust: item.wind?.gust,
+          },
+          weather: item.weather?.[0]
+            ? {
+                main: item.weather[0].main,
+                icon: item.weather[0].icon,
+                description: item.weather[0].description,
+              }
+            : null,
+        })) || [],
       };
-    }
-    case "map-current-weather": {
-      const currentWeather = action.currentWeather;
+
+    case "map-current-weather":
       return {
         ...state,
         currentWeather: {
           temp: {
-            current: currentWeather.main["temp"],
-            min: currentWeather.main.temp_min,
-            max: currentWeather.main.temp_max,
-            feelslike: currentWeather.main.feels_like,
+            current: action.currentWeather.main?.temp || 0,
+            min: action.currentWeather.main?.temp_min || 0,
+            max: action.currentWeather.main?.temp_max || 0,
+            feelslike: action.currentWeather.main?.feels_like || 0,
           },
-          humidity: currentWeather.main.humidity,
-          pressure: currentWeather.main.pressure,
-          visibility: currentWeather.visibility,
-          weather: {
-            main: currentWeather.weather[0].main,
-            icon: currentWeather.weather[0].icon,
-            description: currentWeather.weather[0].description,
-          },
+          pressure: action.currentWeather.main?.pressure || 0,
+          humidity: action.currentWeather.main?.humidity || 0,
+          visibility: action.currentWeather.visibility || 0,
+          precipitation: action.currentWeather.rain?.["1h"] || 0,
           cloud: {
-            coverage: currentWeather.clouds.all,
+            coverage: action.currentWeather.clouds?.all || 0,
           },
           wind: {
-            speed: currentWeather.wind.speed,
-            direction: currentWeather.wind.deg,
-            gust: currentWeather.wind.gust,
+            speed: action.currentWeather.wind?.speed || 0,
+            direction: action.currentWeather.wind?.deg || 0,
+            gust: action.currentWeather.wind?.gust || 0,
+          },
+          weather: {
+            main: action.currentWeather.weather?.[0]?.main || "",
+            icon: action.currentWeather.weather?.[0]?.icon || "",
+            description: action.currentWeather.weather?.[0]?.description || "",
           },
         },
       };
-    }
-    case "map-city": {
+
+    case "map-city":
       return {
         ...state,
-        currentCity: {
-          name: action.city[0].name,
-          lat: action.city[0].lat,
-          lon: action.city[0].lon,
-          state: action.city[0].state,
-          country: action.city[0].country,
-        },
+        currentCity: action.city
+          ? {
+              name: action.city.name,
+              lat: action.city.lat,
+              lon: action.city.lon,
+              state: action.city.state,
+              country: action.city.country,
+            }
+          : state.currentCity,
       };
-    }
+
+    default:
+      return state;
   }
 }
+
+export { WeatherContext, WeatherProvider };
+
+/*
+function useForecast(cityLatitude, cityLongitude) {
+  const [forecast, setForecast] = useState();
+
+  console.log(
+    "city latitude:",
+    cityLatitude,
+    "\n city longitude: ",
+    cityLongitude
+  );
+
+  useEffect(() => {
+    if (!cityLatitude || !cityLongitude) {
+      return;
+    }
+    const fetchForecast = async () => {
+      try {
+        const response = await fetch(
+          `http://api.openweathermap.org/data/2.5/forecast?lat=${cityLatitude}&lon=${cityLongitude}&appid=${apiKey1}`
+        ).then(async (response) => await response.json());
+        setForecast(response);
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+      }
+    };
+    fetchForecast();
+
+    return () => {
+      setForecast(null);
+    };
+  }, [cityLatitude, cityLongitude]);
+  return forecast;
+}
+*/
