@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useReducer } from "react";
-import { apiKey1 } from "../../api_key";
+import { apiKey1, apiKey2 } from "../../api_key";
 
 const WeatherContext = createContext(null);
 
@@ -40,6 +40,9 @@ function WeatherProvider({ children }) {
     },
   });
 
+  useEffect(() => {
+    localStorage.setItem("cityWeather", JSON.stringify(cityWeather));
+  }, [cityWeather]);
   // Fetch city list when search input changes
   useEffect(() => {
     const fetchCities = async () => {
@@ -56,7 +59,7 @@ function WeatherProvider({ children }) {
       }
     };
 
-    const timer = setTimeout(fetchCities, 500); // Added debounce
+    const timer = setTimeout(fetchCities, 500);
     return () => clearTimeout(timer);
   }, [city]);
 
@@ -99,22 +102,26 @@ function WeatherProvider({ children }) {
     dispatchCityWeather({ type: "map-city", city: selectedCity });
   };
   useEffect(() => {
+    const fetchCity = async (lat, lon) => {
+      const response = await fetch(
+        lat & lon
+          ? `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${apiKey2}`
+          : `https://api.openweathermap.org/geo/1.0/direct?q=addis%20ababa&appid=${apiKey2}`
+      );
+      const city = await response.json();
+      dispatchCityWeather({
+        type: "map-city",
+        city: city[0],
+      });
+    };
+
     if ("geolocation" in navigator) {
       console.log("Geolocation navigator is found!");
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { lon, lat, accuracy } = pos.coords;
-          const fetchCity = async () => {
-            const response = await fetch(
-              `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${apiKey1}`
-            );
-            const city = await response.json();
-            dispatchCityWeather({
-              type: "map-city",
-              city: city[0],
-            });
-          };
-          fetchCity();
+
+          fetchCity(lat, lon);
           console.log("Your current position is:");
           console.log(`\t\tLatitude : ${lat}`);
           console.log(`\t\tLongitude: ${lon}`);
@@ -122,21 +129,25 @@ function WeatherProvider({ children }) {
         },
         (err) => {
           console.log(err);
-          const fetchCity = async () => {
-            const response = await fetch(
-              `https://api.openweathermap.org/geo/1.0/direct?q=addis%20ababa&appid=${apiKey1}`
+          fetchCity().catch((error) => {
+            console.error(error);
+            const oldCityWeather = JSON.parse(
+              localStorage.getItem("cityWeather")
             );
-            const city = await response.json();
             dispatchCityWeather({
-              type: "map-city",
-              city: city[0],
+              type: "map-all",
+              action: {
+                city: oldCityWeather.currentCity,
+                forecast: oldCityWeather.weatherForecasted,
+                currentWeather: oldCityWeather.currentWeather,
+              },
             });
-          };
-          fetchCity();
+          });
         }
       );
     } else {
       console.log("NO navigator found");
+      fetchCity();
     }
   }, []);
   return (
@@ -237,6 +248,12 @@ function mapCityWeather(state, action) {
           : state.currentCity,
       };
 
+    case "map-all":
+      return {
+        currentCity: action.city,
+        weatherForecasted: action.forecast,
+        currentWeather: action.currentWeather,
+      };
     default:
       return state;
   }

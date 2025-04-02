@@ -9,12 +9,12 @@ export default function SearchInput({ className }) {
   const [searchedCity, setSearchedCity] = useState("");
   return (
     <div className={className}>
-      <div className="flex  align-middle justify-center">
+      <div className="flex  align-middle justify-center w-full">
         <input
           type="text"
           id="city"
           name="city"
-          className="border-4 border-blue-300 text-white mx-3 rounded-3xl px-3 outline-0"
+          className="text-white mx-3 rounded-2xl p-3 outline-0 w-full bg-[#212A3B] "
           value={searchedCity}
           onInput={(e) => {
             setSearchedCity(e.target.value);
@@ -30,7 +30,7 @@ export default function SearchInput({ className }) {
           <FontAwesomeIcon
             icon={faSearch}
             size="lg"
-            className="cursor-pointer"
+            className="cursor-pointer text-amber-50"
           />
         </button>
       </div>

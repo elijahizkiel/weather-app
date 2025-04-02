@@ -5,16 +5,28 @@ export default function WeatherCard({ time, temp, weather, isVertical }) {
    * @param weather main weather by current time or day
    */
   return (
-    <div className={"flex justify-between" + isVertical?"flex-col":"flex-row"}>
-      <p className="text-grey-600 p-1.5">{time}</p>
+    <div
+      className={`flex justify-around items-center gap-1 text-lg  ${
+        !isVertical ? "flex-col" : "flex-row"
+      } text-gray-400 `}
+    >
+      <p className="text-grey-600 text-center p-1.5">{time}</p>
       <div className="">
         <img
           src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
-          alt={weather.descr}
+          alt={weather.description}
+          className="max-h-15"
         />
-        {isVertical && <p>{weather.main}</p>}
+        {isVertical && <p className="text-red-500 text-xl">{weather.main}</p>}
       </div>
-      <p>{temp.high && temp.low ? `${temp.high}/${temp.low}` : temp.high}</p>
+      <p className="text-center ">
+        {isVertical
+          ? `${(temp.max - 273).toPrecision(2)}/${(temp.min - 273).toPrecision(
+              2
+            )}`
+          : (temp.current - 273).toPrecision(2)}
+        &deg;
+      </p>
     </div>
   );
 }
