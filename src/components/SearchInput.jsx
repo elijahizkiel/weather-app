@@ -35,7 +35,7 @@ export default function SearchInput({ className }) {
         </button>
         {searched && cities && (
           <ShowSearchResultList
-            className="text-white rounded-xl border-2 border-blue-500 absolute top-12 left-5 w-svh h-fit bg-[#212A3B] shadow-md"
+            className="text-white rounded-xl border-2 border-[#394865] absolute top-12 left-5 w-svh h-fit bg-[#212A3B] shadow-md"
             collection={cities}
             onClickOnItem={(city)=>{
               setCurrentCity(city);

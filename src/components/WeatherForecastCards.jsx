@@ -7,7 +7,6 @@ const HorizontalForecastCards = ({ forecasts, className }) => {
         const dateOfForecast = new Date(
           forecast.date.str.split(" ")[0]
         ).toLocaleDateString();
-        console.log(today);
         return dateOfForecast === today;
       })
     : [];
@@ -33,6 +32,15 @@ const HorizontalForecastCards = ({ forecasts, className }) => {
 };
 
 const VerticalForecastCards = ({ forecasts, className }) => {
+  forecasts = Array.isArray(forecasts)
+    ? forecasts.filter((forecast) => {
+        const today = new Date(Date.now()).toLocaleDateString();
+        const dateOfForecast = new Date(
+          forecast.date
+        ).toLocaleDateString();
+        return dateOfForecast !== today;
+      })
+    : []; 
   return (
     <div className={className}>  
       {forecasts?forecasts.map((forecast, index) => {
@@ -43,7 +51,7 @@ const VerticalForecastCards = ({ forecasts, className }) => {
             weather={weather}
             temp={temp}
             time={(new Date(date)).toLocaleDateString("en-US", {
-              weekday: "long",
+              weekday: "short",
             })}
             isVertical={true}
           />

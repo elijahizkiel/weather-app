@@ -1,5 +1,5 @@
 export default function CurrentCityCard({
-  cityName,
+  city,
   currentTemp,
   currentWeather,
   units,
@@ -12,8 +12,11 @@ export default function CurrentCityCard({
    */
   return (
     <div className={className}>
-      <div className="flex justify-center items-center">
-        <h2 className="text-3xl font-bold text-white">{cityName}</h2>
+      <div className="flex flex-col justify-center items-center">
+        <h2 className="text-3xl font-bold text-white">{city.name}</h2>
+        <p className="text-2xl text-white font-semibold ml-2">
+          {city.state}, {city.country}
+        </p>
       </div>
       <div className="row-span-2 h-full flex justify-center items-center">
         <img
@@ -22,7 +25,7 @@ export default function CurrentCityCard({
           className="w-full"
         />
       </div>
-      <p className="text-4xl text-white font-semibold flex justify-start items-center">
+      <p className="text-4xl text-white font-semibold flex justify-start px-10 items-center">
         {currentTemp}&deg;{units === "celsius" ? "C" : "F"}
       </p>
     </div>

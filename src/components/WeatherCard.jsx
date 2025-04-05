@@ -6,8 +6,8 @@ export default function WeatherCard({ time, temp, weather, isVertical }) {
    */
   return (
     <div
-      className={`flex justify-around items-center gap-1 text-lg  ${
-        !isVertical ? "flex-col" : "grid grid-cols-3 grid-row-1"
+      className={`flex justify-around h-fit items-center gap-1 text-lg border-[#394865] ${
+        !isVertical ? "flex-col border-r-2 " : "grid grid-cols-3 grid-row-1 border-b-2"
       } text-gray-400 `}
     >
       <p className="text-grey-600 text-center p-1">{time}</p>
@@ -17,7 +17,7 @@ export default function WeatherCard({ time, temp, weather, isVertical }) {
           alt={weather.description}
           className="max-h-15"
         />
-        {isVertical && <p className="text-red-500 text-xl">{weather.main}</p>}
+        {isVertical && <p className="text-lg">{weather.main}</p>}
       </div>
       <p className="text-center ">
         {isVertical
