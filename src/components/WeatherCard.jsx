@@ -7,10 +7,10 @@ export default function WeatherCard({ time, temp, weather, isVertical }) {
   return (
     <div
       className={`flex justify-around items-center gap-1 text-lg  ${
-        !isVertical ? "flex-col" : "flex-row"
+        !isVertical ? "flex-col" : "grid grid-cols-3 grid-row-1"
       } text-gray-400 `}
     >
-      <p className="text-grey-600 text-center p-1.5">{time}</p>
+      <p className="text-grey-600 text-center p-1">{time}</p>
       <div className="">
         <img
           src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}

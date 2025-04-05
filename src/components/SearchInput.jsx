@@ -9,7 +9,7 @@ export default function SearchInput({ className }) {
   const [searchedCity, setSearchedCity] = useState("");
   return (
     <div className={className}>
-      <div className="flex  align-middle justify-center w-full">
+      <div className="flex  align-middle justify-center w-full relative">
         <input
           type="text"
           id="city"
@@ -33,14 +33,18 @@ export default function SearchInput({ className }) {
             className="cursor-pointer text-amber-50"
           />
         </button>
+        {searched && cities && (
+          <ShowSearchResultList
+            className="text-white rounded-xl border-2 border-blue-500 absolute top-12 left-5 w-svh h-fit bg-[#212A3B] shadow-md"
+            collection={cities}
+            onClickOnItem={(city)=>{
+              setCurrentCity(city);
+              setSearched(false);
+              setSearchedCity("");
+            }}
+          />
+        )}
       </div>
-      {searched && cities && (
-        <ShowSearchResultList
-          className="text-white z-10 rounded-xl border-2 border-blue-500"
-          collection={cities}
-          onClickOnItem={setCurrentCity}
-        />
-      )}
     </div>
   );
 }
@@ -51,9 +55,9 @@ function ShowSearchResultList({ className, collection = [], onClickOnItem }) {
       {collection?.map((city, index) => {
         return (
           <li
+          className="hover:bg-[#394865]"
             key={`${city?.lat}${city?.lon}`}
             onClick={() => {
-              console.log("the city from click", city);
               onClickOnItem(index);
             }}
           >

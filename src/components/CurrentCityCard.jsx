@@ -3,6 +3,7 @@ export default function CurrentCityCard({
   currentTemp,
   currentWeather,
   units,
+  className
 }) {
   /**
    * @param cityName tell which city's weather forecast is being shown,
@@ -10,8 +11,8 @@ export default function CurrentCityCard({
    * @param currentWeather is object containing weahter icon code, rainingChance and weather
    */
   return (
-    <div className="md:row-span-3 md:row-start-2 md:col-start-2 md:col-end-7 gap-4 p-5 grid grid-cols-2">
-      <div className="">
+    <div className={className}>
+      <div className="flex justify-center items-center">
         <h2 className="text-3xl font-bold text-white">{cityName}</h2>
       </div>
       <div className="row-span-2 h-full flex justify-center items-center">
@@ -21,7 +22,7 @@ export default function CurrentCityCard({
           className="w-full"
         />
       </div>
-      <p className="text-4xl text-white font-extrabold">
+      <p className="text-4xl text-white font-semibold flex justify-start items-center">
         {currentTemp}&deg;{units === "celsius" ? "C" : "F"}
       </p>
     </div>
