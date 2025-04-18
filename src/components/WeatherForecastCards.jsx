@@ -13,7 +13,7 @@ const HorizontalForecastCards = ({ forecasts, className }) => {
   return (
     <div className={className}>
       <p className="text-gray-400 uppercase font-semibold text-base my-3">Today's Forecast </p>     
-      <div className="gap-1 md:grid grid-cols-8">
+      <div className="gap-1 md:grid grid-cols-8 w-full">
       {forecasts.map((forecast, index) => {
         const { weather, temp, date } = forecast;
         return (
@@ -42,7 +42,9 @@ const VerticalForecastCards = ({ forecasts, className }) => {
       })
     : []; 
   return (
-    <div className={className}>  
+    <div className={className}> 
+    <p>Next 5 Days Weather</p> 
+      <div className="md:grid md:grid-cols-1 md:grid-rows-[repeat(5,70px)] sm:flex sm:flex-row sm:flex-wrap gap-5">
       {forecasts?forecasts.map((forecast, index) => {
         const { weather, temp, date } = forecast;
         return (
@@ -56,7 +58,8 @@ const VerticalForecastCards = ({ forecasts, className }) => {
             isVertical={true}
           />
         );
-      }):<p className="text-gray-400">No forecast available</p>}
+      }):<p >No forecast available</p>}
+    </div>
     </div>
   );
 };

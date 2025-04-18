@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { WeatherContext } from "../contexts/weatherContext";
+import { WeatherContext } from "../contexts/WeatherContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 

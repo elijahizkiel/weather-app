@@ -17,6 +17,7 @@ function WeatherProvider({ children }) {
     weatherForecasted: [],
     currentWeather: {
       temp: {
+        feelsLike: 0,
         current: 0,
         min: 0,
         max: 0,
@@ -180,7 +181,7 @@ function mapCityWeather(state, action) {
               current: item.main?.temp,
               min: item.main?.temp_min,
               max: item.main?.temp_max,
-              feelslike: item.main?.feels_like,
+              feelsLike: item.main?.feels_like,
             },
             pressure: item.main?.pressure,
             humidity: item.main?.humidity,
@@ -212,7 +213,7 @@ function mapCityWeather(state, action) {
             current: action.currentWeather.main?.temp || 0,
             min: action.currentWeather.main?.temp_min || 0,
             max: action.currentWeather.main?.temp_max || 0,
-            feelslike: action.currentWeather.main?.feels_like || 0,
+            feelsLike: action.currentWeather.main?.feels_like || 0,
           },
           pressure: action.currentWeather.main?.pressure || 0,
           humidity: action.currentWeather.main?.humidity || 0,
