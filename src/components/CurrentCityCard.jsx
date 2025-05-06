@@ -14,7 +14,7 @@ export default function CurrentCityCard({
     <div className={className}>
       {city ? (
         <>
-          <div className="flex flex-col justify-center items-center text-black">
+          <div className="flex flex-col justify-center items-center">
             <h2 className="text-3xl font-bold">{city.name}</h2>
             <p className="text-2xl font-semibold ml-2">
               {city.state}, {city.country}
@@ -35,7 +35,7 @@ export default function CurrentCityCard({
           {!currentTemp ? (
             <p>No Temperature Forecasted!</p>
           ) : (
-            <p className="text-4xl text-white font-semibold flex justify-start px-10 items-center">
+            <p className="text-4xl font-semibold flex justify-start px-10 items-center">
               {currentTemp}&deg;{units === "celsius" ? "C" : "F"}
             </p>
           )}

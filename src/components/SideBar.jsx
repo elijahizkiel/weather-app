@@ -6,28 +6,29 @@ import {
   faToggleOn,
   faToggleOff,
 } from "@fortawesome/free-solid-svg-icons";
-export default function SideBar({ className, darkmode, setDarkmode }) {
-  const iconClasses = "flex flex-col cursor-pointer my-5 text-white";
-  const titleClasses = "text-gray-400 text-sm";
+import { memo } from "react";
+
+function SideBar({ className, darkmode, setDarkmode, iconClasses, titleClasses }) {
   return (
     <div className={className}>
-      <div className={iconClasses}>
-        <FontAwesomeIcon icon={faList} className="text-2xl" />
-      </div>
-      <div className={iconClasses}>
-        <FontAwesomeIcon icon={faCloudSunRain} className="text-2xl" />
+      <button className={iconClasses}>
+        <FontAwesomeIcon icon={faList} />
+      </button>
+      <button title={"Weather Tab"} className={iconClasses}>
+        <FontAwesomeIcon icon={faCloudSunRain} />
         <p className={titleClasses}>Weather</p>
-      </div>
-      <div className={iconClasses}>
-        <FontAwesomeIcon icon={faGear} size={"lg"} className="text-2xl" />
+      </button>
+      <button title={"Setting"} className={iconClasses}>
+        <FontAwesomeIcon icon={faGear} size={"lg"} />
         <p className={titleClasses}>Setting</p>
-      </div>
-      <div className={iconClasses} onClick={()=>{setDarkmode(!darkmode)}} >
+      </button>
+      <button title={"Toggle Dark-mode"} className={iconClasses} onClick={()=>{setDarkmode(!darkmode)}} >
         <FontAwesomeIcon
           icon={!darkmode ? faToggleOff : faToggleOn}
-          className="text-2xl"
         />
-      </div>
+      </button>
     </div>
   );
 }
+
+export default memo(SideBar);

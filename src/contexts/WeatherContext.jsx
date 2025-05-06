@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useReducer } from "react";
+import { createContext, useState, useEffect, useReducer, useMemo, useCallback } from "react";
 import { apiKey1, apiKey2 } from "../../api_key";
 
 const WeatherContext = createContext(null);
@@ -98,10 +98,10 @@ function WeatherProvider({ children }) {
     fetchWeatherData();
   }, [cityWeather.currentCity]);
 
-  const setCurrentCity = (index) => {
+  const setCurrentCity = useCallback((index) => {
     const selectedCity = cities[index];
     dispatchCityWeather({ type: "map-city", city: selectedCity });
-  };
+  }, [cities]);
   useEffect(() => {
     const fetchCity = async (lat, lon) => {
       const response = await fetch(
@@ -151,15 +151,16 @@ function WeatherProvider({ children }) {
       fetchCity();
     }
   }, []);
+
+  let values = useMemo(()=>{
+    return {cities,
+  setCity,
+  setCurrentCity,
+  city,
+  cityWeather,}}, [setCurrentCity, cityWeather, cities, city]);
   return (
     <WeatherContext.Provider
-      value={{
-        cities,
-        setCity,
-        setCurrentCity,
-        city,
-        cityWeather,
-      }}
+      value={values}
     >
       {children}
     </WeatherContext.Provider>

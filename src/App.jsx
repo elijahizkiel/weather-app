@@ -11,18 +11,21 @@ import { useContext, useState } from "react";
 import { WeatherContext } from "./contexts/WeatherContext";
 
 function App() {
-  const [darkmode, setDarkmode] = useState(false);
+  const theme = window.matchMedia("(prefers-color-scheme: dark)");
+  const [darkmode, setDarkmode] = useState(theme);
   const { cityWeather } = useContext(WeatherContext);
   return (
     <div
       className={`w-[99vw] px-2 overflow-x-clip md:h-full md:grid md:grid-cols-10 md:grid-rows-[repeat(13,_56px)] gap-2 ${
-        darkmode ? "dark bg-[#0A121E]" : "bg-[#bef2f4]"
+        darkmode ? "dark bg-[#0A121E]" : "bg-radial to-60% to-[#AFDDFF] from-[#f5f5f5]"
       }`}
     >
       <SideBar
         className={
-          "dark:bg-[#212A3B] bg-[#137376] rounded-3xl m-2 md:col-span-1 md:row-start-2 md:row-span-8 flex flex-col items-center justify-start gap-5"
+          "bg-[#60b5ff] dark:bg-[#212A3B] rounded-3xl m-2 md:col-span-1 md:row-start-2 md:row-span-8 flex flex-col items-center justify-start gap-5"
         }
+        iconClasses={"flex flex-col cursor-pointer my-5 text-grey-500 dark:text-white text-2xl"}
+        titleClasses={" text-grey-500 dark:text-gray-200 text-sm"}
         darkmode={darkmode}
         setDarkmode={setDarkmode}
       />
@@ -30,6 +33,7 @@ function App() {
         className={
           "md:col-start-2 md:col-end-8 md:row-span-1 flex flex-col justify-center items-center my-2 p-1 h-fit border-amber-50"
         }
+        inputClasses={"text-white mx-3 rounded-2xl p-3 outline-0 w-full bg-[#60b5ff] dark:bg-[#212A3B]"}
       />
       <CurrentCityCard
         className={
@@ -45,15 +49,15 @@ function App() {
       <HorizontalForecastCards
         forecasts={cityWeather.weatherForecasted}
         className={
-          "md:row-start-5 md:row-end-9 md:col-start-2 md:col-end-8 md:flex md:flex-col md:items-start md:justify-evenly pt-0 pb-3 rounded-xl bg-[#212A3B] px-5 "
+          "md:row-start-5 md:row-end-9 md:col-start-2 md:col-end-8 md:flex md:flex-col md:items-start md:justify-evenly pt-0 pb-3 rounded-xl bg-[#60b5ff] dark:bg-[#212A3B] px-5 "
         }
       />
       <VerticalForecastCards
         forecasts={getDailyForecast(cityWeather.weatherForecasted)}
-        className={`md:col-start-8 md:col-end-11 md:row-start-2 md:row-span-8 py-2 px-5 rounded-xl bg-[#212A3B] text-gray-400`}
+        className={`md:col-start-8 md:col-end-11 md:row-start-2 md:row-span-8 py-2 px-5 rounded-xl bg-[#60b5ff] dark:bg-[#212A3B] text-grey-500 dark:text-gray-400`}
       />
       <TodaysCondition
-        className="md:col-start-2 md:col-end-8 md:row-start-10 md:row-end-13 text-gray-400 bg-[#212A3B] rounded-2xl p-5"
+        className="md:col-start-2 md:col-end-8 md:row-start-10 md:row-end-13 text-grey-500 dark:text-gray-400 bg-[#60b5ff] dark:bg-[#212A3B] rounded-2xl p-5"
         currentWeather={cityWeather.currentWeather}
       />
       <footer className="md:col-start-1 md:col-end-11 md:row-start-13 md:row-end-14 md:flex md:justify-center md:items-center text-black dark:text-white text-sm font-light">

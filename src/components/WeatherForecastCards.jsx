@@ -12,7 +12,7 @@ const HorizontalForecastCards = ({ forecasts, className }) => {
     : [];
   return (
     <div className={className}>
-      <p className="text-gray-400 uppercase font-semibold text-base my-3">Today's Forecast </p>     
+      <p className="text-grey-500 dark:text-gray-400 uppercase font-semibold text-base my-3">Today's Forecast </p>     
       <div className="gap-1 md:grid grid-cols-8 w-full">
       {forecasts.map((forecast, index) => {
         const { weather, temp, date } = forecast;

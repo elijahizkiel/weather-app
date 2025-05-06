@@ -3,7 +3,7 @@ import { WeatherContext } from "../contexts/WeatherContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
-export default function SearchInput({ className }) {
+export default function SearchInput({ className, inputClasses }) {
   const [searched, setSearched] = useState(false);
   const { cities, setCity, setCurrentCity } = useContext(WeatherContext);
   const [searchedCity, setSearchedCity] = useState("");
@@ -13,8 +13,8 @@ export default function SearchInput({ className }) {
         <input
           type="text"
           id="city"
+          className={inputClasses}
           name="city"
-          className="text-white mx-3 rounded-2xl p-3 outline-0 w-full bg-[#212A3B] "
           value={searchedCity}
           onInput={(e) => {
             setSearchedCity(e.target.value);
@@ -30,7 +30,7 @@ export default function SearchInput({ className }) {
           <FontAwesomeIcon
             icon={faSearch}
             size="lg"
-            className="cursor-pointer text-amber-50"
+            className="cursor-pointer text-gray-800 dark:text-amber-50"
           />
         </button>
         {searched && cities && (
