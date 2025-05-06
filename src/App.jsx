@@ -7,13 +7,21 @@ import {
   VerticalForecastCards,
 } from "./components/WeatherForecastCards";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { WeatherContext } from "./contexts/WeatherContext";
 
 function App() {
-  const theme = window.matchMedia("(prefers-color-scheme: dark)");
-  const [darkmode, setDarkmode] = useState(theme);
   const { cityWeather } = useContext(WeatherContext);
+  useEffect(()=> {
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleThemeChange =  (e) => {
+    setDarkmode(e.matches);
+  }
+  systemTheme.addEventListener("change", handleThemeChange);
+
+  return ()=> systemTheme.removeEventListener('change', handleThemeChange);
+}, [])
+  const [darkmode, setDarkmode] = useState((window.matchMedia("(prefers-color-scheme: dark)")).matches);
   return (
     <div
       className={`w-[99vw] px-2 overflow-x-clip md:h-full md:grid md:grid-cols-10 md:grid-rows-[repeat(13,_56px)] gap-2 ${
@@ -40,9 +48,7 @@ function App() {
           "md:row-start-2 md:row-span-3 md:col-start-2 md:col-end-8 gap-4 p-5 grid grid-cols-2 grid-rows-2 text-black dark:text-white"
         }
         city={cityWeather?.currentCity}
-        currentTemp={(cityWeather?.currentWeather?.temp.current - 273).toFixed(
-          2
-        )}
+        currentTemp={convertToCelsius(cityWeather?.currentWeather?.temp.current)}
         units={"celsius"}
         currentWeather={cityWeather?.currentWeather?.weather}
       />
@@ -77,7 +83,7 @@ export default App;
 
 function getDailyForecast(forecasts) {
   if (!forecasts) {
-    return;
+    return [];
   }
   const groupedByDate = {};
   forecasts.forEach((forecast) => {
@@ -89,11 +95,11 @@ function getDailyForecast(forecasts) {
     groupedByDate[date].push(forecast);
   });
   const dates = Object.keys(groupedByDate);
-  let dailyForecasts;
+  let dailyForecasts= [];
 
   for (const date of dates) {
-    const maxTemps = groupedByDate[date].map((i) => i.temp.max);
-    const minTemps = groupedByDate[date].map((i) => i.temp.min);
+    const maxTemps = groupedByDate[date].map((forecastItem) => forecastItem.temp.max);
+    const minTemps = groupedByDate[date].map((forecastItem) => forecastItem.temp.min);
 
     const minTemp = minTemps.reduce((a, b) => Math.min(a, b));
     const maxTemp = maxTemps.reduce((a, b) => Math.max(a, b));
@@ -117,9 +123,10 @@ function getDailyForecast(forecasts) {
     const frequentWeather = Object.keys(weathersCount).reduce((a, b) =>
       weathersCount[a] > weathersCount[b] ? a : b
     );
-
-    dailyForecasts = dailyForecasts
-      ? [
+    const weatherMatched = weathers.find(
+      (weather) => weather.main === frequentWeather
+    );
+    dailyForecasts = [
           ...dailyForecasts,
           {
             temp: {
@@ -130,32 +137,18 @@ function getDailyForecast(forecasts) {
             avgHumidity: avgHumidity,
             weather: {
               main: frequentWeather,
-              icon: weathers.find((weather) => weather.main === frequentWeather)
-                .icon,
-              description: weathers.find(
-                (weather) => weather.main === frequentWeather
-              ).description,
+              icon: weatherMatched.icon || "01d",
+              description: weatherMatched.description || "No description",
             },
           },
         ]
-      : [
-          {
-            temp: {
-              min: minTemp,
-              max: maxTemp,
-            },
-            date: date,
-            avgHumidity: avgHumidity,
-            weather: {
-              main: frequentWeather,
-              icon: weathers.find((weather) => weather.main === frequentWeather)
-                .icon,
-              description: weathers.find(
-                (weather) => weather.main === frequentWeather
-              ).description,
-            },
-          },
-        ];
   }
   return dailyForecasts;
+}
+
+function convertToCelsius(kelvin) {
+  return (kelvin - 273.15).toFixed(2);
+}
+function convertToFahrenheit(kelvin) {
+  return ((kelvin - 273.15) * 9) / 5 + 32;
 }
